@@ -1,0 +1,17 @@
+# Ignore build target directories
+**/target/
+**/*.class
+
+# Ignore secret environment variables
+**/.env
+
+# Ignore IDE settings
+**/.idea/
+**/*.iml
+**/.classpath
+**/.project
+**/.settings/
+**/.vscode/
+
+# Ignore temp logs
+**/*.log
