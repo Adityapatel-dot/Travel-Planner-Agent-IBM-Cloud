@@ -1,0 +1,19 @@
+# Maven
+target/
+*.class
+
+# Environment variables
+.env
+
+# IDE settings
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Temp files
+*.log
+scratch/
+create_pdf.py

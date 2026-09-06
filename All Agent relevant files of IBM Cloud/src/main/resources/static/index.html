@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="TravelAI — AI-powered travel planner using IBM Granite. Plan personalised trips with itineraries, weather forecasts, and budget planning."/>
+  <title>TravelAI — IBM Granite Travel Planner Agent</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈️</text></svg>"/>
+</head>
+<body>
+
+  <!-- Ambient background orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       HEADER
+  ══════════════════════════════════════════════════════════ -->
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon" aria-hidden="true">✈️</span>
+        <div>
+          <div class="logo-text">TravelAI</div>
+          <div class="logo-sub">Powered by IBM Granite</div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Dashboard tabs">
+        <button class="nav-btn active" id="tab-overview"   onclick="setActiveTab('overview')">🗺️ Overview</button>
+        <button class="nav-btn"        id="tab-weather"    onclick="setActiveTab('weather')">🌤️ Weather</button>
+        <button class="nav-btn"        id="tab-itinerary"  onclick="setActiveTab('itinerary')">📅 Itinerary</button>
+        <button class="nav-btn"        id="tab-budget"     onclick="setActiveTab('budget')">💰 Budget</button>
+      </nav>
+
+      <div class="status-pill" id="statusPill" aria-live="polite">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Connecting…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN LAYOUT  (Chat | Dashboard)
+  ══════════════════════════════════════════════════════════ -->
+  <main class="app-layout" role="main">
+
+    <!-- ── LEFT: Chat Panel ────────────────────────────────── -->
+    <aside class="chat-panel" aria-label="AI Travel Chat">
+      <div class="chat-header">
+        <div class="avatar-ring">
+          <span class="avatar-icon" aria-hidden="true">🤖</span>
+        </div>
+        <div class="chat-agent-info">
+          <div class="agent-name">TravelAI Agent</div>
+          <div class="agent-model">IBM Granite 3‑8B Instruct</div>
+        </div>
+        <button class="icon-btn" id="clearBtn" onclick="clearChat()" title="Clear conversation" aria-label="Clear conversation">🗑️</button>
+      </div>
+
+      <div class="chat-messages" id="chatMessages" role="log" aria-label="Conversation" aria-live="polite">
+        <!-- Messages injected by JS -->
+      </div>
+
+      <div class="chat-footer">
+        <div class="suggestion-chips" id="suggestionChips" aria-label="Quick suggestions">
+          <button class="chip" onclick="sendSuggestion('Plan a 5-day trip to Goa for 2 people with ₹60,000 budget')">🏖️ Goa Trip</button>
+          <button class="chip" onclick="sendSuggestion('Plan a 7-day Paris trip for 2 people')">🗼 Paris Trip</button>
+          <button class="chip" onclick="sendSuggestion('Suggest best beach holiday destinations')">🌴 Beach Ideas</button>
+          <button class="chip" onclick="sendSuggestion('What is the weather like in Bali right now?')">🌤️ Bali Weather</button>
+        </div>
+        <div class="input-row">
+          <textarea
+            class="chat-input"
+            id="chatInput"
+            placeholder="Ask me: 'Plan a 5-day Tokyo trip for ₹1,20,000…'"
+            rows="1"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this)"
+            aria-label="Type your travel question"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()" aria-label="Send message">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── RIGHT: Dashboard ────────────────────────────────── -->
+    <div class="dashboard">
+
+      <!-- ── Tab: Overview ──────────────────────────────────── -->
+      <div class="tab-content active" id="tab-content-overview">
+
+        <div class="hero-section">
+          <h1 class="hero-title">Your AI-Powered <span class="gradient-text">Travel Planner</span></h1>
+          <p class="hero-sub">Explore the world with IBM Granite intelligence guiding every step of your journey</p>
+          <div class="hero-badges">
+            <span class="badge">🤖 IBM Granite AI</span>
+            <span class="badge">🌤️ Live Weather</span>
+            <span class="badge">💰 Budget Planner</span>
+            <span class="badge">📅 Smart Itineraries</span>
+          </div>
+        </div>
+
+        <!-- Quick Plan Card -->
+        <div class="glass-card quick-plan-card">
+          <div class="card-title-row">
+            <h2 class="card-title">🚀 Quick Trip Planner</h2>
+            <span class="card-subtitle">Powered by IBM Granite AI</span>
+          </div>
+          <div class="quick-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">🌍 Destination</label>
+                <input type="text" id="qpDestination" placeholder="Paris, Goa, Tokyo…" class="form-input" autocomplete="off"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">📅 Duration</label>
+                <select id="qpDays" class="form-input">
+                  <option value="3">3 days</option>
+                  <option value="5" selected>5 days</option>
+                  <option value="7">7 days</option>
+                  <option value="10">10 days</option>
+                  <option value="14">14 days</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">👥 Travelers</label>
+                <select id="qpPeople" class="form-input">
+                  <option value="1">Solo traveller</option>
+                  <option value="2" selected>2 people</option>
+                  <option value="3">3 people</option>
+                  <option value="4">4+ people</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">💰 Budget (₹)</label>
+                <input type="text" id="qpBudget" placeholder="e.g. 80,000" class="form-input"/>
+              </div>
+            </div>
+            <div class="style-row">
+              <span class="form-label">🎯 Travel Style</span>
+              <div class="style-pills" id="stylePills">
+                <button class="style-pill active" data-style="Adventure">🏔️ Adventure</button>
+                <button class="style-pill" data-style="Culture">🏛️ Culture</button>
+                <button class="style-pill" data-style="Relaxation">💆 Relaxation</button>
+                <button class="style-pill" data-style="Food">🍽️ Foodie</button>
+                <button class="style-pill" data-style="Luxury">💎 Luxury</button>
+              </div>
+            </div>
+            <button class="cta-btn" id="quickPlanBtn" onclick="quickPlan()">
+              <span class="btn-icon">✨</span> Generate AI Travel Plan
+            </button>
+          </div>
+        </div>
+
+        <!-- Popular Destinations -->
+        <div class="section-header">
+          <h2 class="section-title">🌍 Popular Destinations</h2>
+          <p class="section-sub">Click any card to start planning your trip</p>
+        </div>
+        <div class="destinations-grid" id="destinationsGrid">
+          <!-- Populated by JS -->
+          <div class="dest-skeleton"></div>
+          <div class="dest-skeleton"></div>
+          <div class="dest-skeleton"></div>
+          <div class="dest-skeleton"></div>
+          <div class="dest-skeleton"></div>
+          <div class="dest-skeleton"></div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Weather ───────────────────────────────────── -->
+      <div class="tab-content" id="tab-content-weather">
+        <div class="glass-card weather-card">
+          <div class="card-title-row">
+            <h2 class="card-title">🌤️ Travel Weather Forecast</h2>
+          </div>
+          <div class="weather-search-row">
+            <input type="text" id="weatherCityInput" placeholder="Enter city (e.g. Paris, Bali, Tokyo)…" class="form-input weather-city-input" onkeydown="if(event.key==='Enter') fetchWeather()"/>
+            <button class="search-btn" onclick="fetchWeather()">🔍 Forecast</button>
+          </div>
+          <div id="weatherWidget" class="weather-widget-area">
+            <div class="placeholder-state">
+              <div class="placeholder-icon">🌍</div>
+              <p>Enter a city to see the live weather forecast</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Itinerary ─────────────────────────────────── -->
+      <div class="tab-content" id="tab-content-itinerary">
+        <div id="itineraryPanel" class="itinerary-panel">
+          <div class="placeholder-state">
+            <div class="placeholder-icon">📅</div>
+            <p>Ask the AI to plan a trip and your itinerary will appear here</p>
+            <button class="cta-btn small" onclick="setActiveTab('overview')">Start Planning →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Tab: Budget ────────────────────────────────────── -->
+      <div class="tab-content" id="tab-content-budget">
+        <div id="budgetPanel" class="budget-panel">
+          <div class="placeholder-state">
+            <div class="placeholder-icon">💰</div>
+            <p>Plan a trip first to see your detailed budget breakdown</p>
+            <button class="cta-btn small" onclick="setActiveTab('overview')">Start Planning →</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dashboard -->
+  </main>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast" aria-live="assertive" aria-atomic="true"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
